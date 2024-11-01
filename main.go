@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 
+	"github.com/nanvenomous/discontent/handlers"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -56,6 +58,13 @@ func getEntities(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	var err error
 	http.HandleFunc("/api/entities", getEntities)
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/api/entities/", handlers.HandleEntity)
+
+	fmt.Println("listening on port :8080")
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
 }

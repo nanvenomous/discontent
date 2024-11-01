@@ -18,3 +18,25 @@ type Comment struct {
 	Content   string `json:"content" bson:"content"`
 	Author    string `json:"author" bson:"author"`
 }
+
+var collectionMap = map[string]interface{}{
+	"articles":   Article{},
+	"categories": Category{},
+	"comments":   Comment{},
+}
+
+var structMap = map[interface{}]string{
+	Article{}:  "articles",
+	Category{}: "categories",
+	Comment{}:  "comments",
+}
+
+func GetStructFromCollectionName(collectionName string) (interface{}, bool) {
+	structure, exists := collectionMap[collectionName]
+	return structure, exists
+}
+
+func GetCollectionNameFromStruct(entity interface{}) (string, bool) {
+	collectionName, exists := structMap[entity]
+	return collectionName, exists
+}
