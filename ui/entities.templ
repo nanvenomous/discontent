@@ -5,8 +5,12 @@ import "reflect"
 templ SubmitEntityForm(entityType reflect.Type) {
 	<form method="post" action={ templ.SafeURL("/api/entities/" + entityType.Name()) }>
 		for i := 0; i < entityType.NumField(); i++ {
-			<label for={ entityType.Field(i).Name }>{ entityType.Field(i).Name } </label>
-			<input type="text" id={ entityType.Field(i).Name } name={ entityType.Field(i).Name } placeholder={ entityType.Field(i).Type.Name() }/>
+			@iconInput(iconInputProps{
+				ID:         entityType.Field(i).Name,
+				Label:      entityType.Field(i).Name,
+				Placeholder: entityType.Field(i).Type.Name(),
+				Icon:       "ph-textbox", // Assuming a generic icon for input
+			})
 			<br/>
 		}
 		<button type="submit">Submit</button>
