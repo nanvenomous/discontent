@@ -58,16 +58,14 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusCreated)
 
-		entityWithID, err := reflection.AddIDToEntity(entityPtr, oid)
+		_, err = reflection.AddIDToEntity(entityPtr, oid)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		entity := entityWithID
 		log.Println(entityValue)
-		log.Println(entity)
 
-		err = ui.Page(ui.SubmitEntityForm(entity, entityType)).Render(r.Context(), w)
+		err = ui.Page(ui.SubmitEntityForm(entityValue, entityType)).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

@@ -2,8 +2,10 @@ package ui
 
 import (
 	"fmt"
-	"github.com/nanvenomous/discontent/models"
 	"reflect"
+
+	"github.com/nanvenomous/discontent/models"
+	"github.com/nanvenomous/discontent/reflection"
 )
 
 var (
@@ -34,6 +36,7 @@ templ SubmitEntityForm(entity any, entityType reflect.Type) {
 					Icon:        iconTypeMap[entityType.Field(i).Type.Name()],
 					ViewOnly:    disabledTypeMap[entityType.Field(i).Type.Name()],
 					Name:        entityType.Field(i).Name,
+					Value:       reflection.GetStringFromValue(entityType.Field(i), reflect.ValueOf(entity).Field(i)),
 				})
 				<br/>
 			}
@@ -46,5 +49,3 @@ templ SubmitEntityForm(entity any, entityType reflect.Type) {
 		</form>
 	}
 }
-
-// Value:       reflection.GetStringFromValue(entityType.Field(i), reflect.ValueOf(entity)),

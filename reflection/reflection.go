@@ -11,7 +11,6 @@ import (
 
 // GetStringFromValue gets the string value from a reflect.StructField
 func GetStringFromValue(fld reflect.StructField, val reflect.Value) string {
-	// Handle ObjectID type
 	if fld.Type.Name() == "ObjectID" {
 		if val.Interface() != primitive.NilObjectID {
 			return val.Interface().(primitive.ObjectID).Hex()
