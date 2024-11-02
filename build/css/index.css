@@ -1,0 +1,8 @@
+
+.htmx-request .HideOnRequest {
+  display: none;
+}
+
+.htmx-request .ph-circle-notch {
+  display: inline-block; 
+}

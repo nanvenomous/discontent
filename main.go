@@ -98,9 +98,8 @@ func getBundledFile(r *http.Request) ([]byte, error) {
 }
 
 func serveResourceCachedETag(w http.ResponseWriter, r *http.Request,
-	fileCheck func(r *http.Request) ([]byte, error)) {
-	log.Println(r.URL.Path)
-
+	fileCheck func(r *http.Request) ([]byte, error),
+) {
 	w.Header().Set("Cache-Control", "max-age=0")
 	content, err := fileCheck(r)
 	if err != nil {
@@ -116,6 +115,18 @@ func serveResourceCachedETag(w http.ResponseWriter, r *http.Request,
 
 	w.Header().Set("ETag", etg)
 	http.ServeContent(w, r, r.URL.Path, time.Unix(0, 0), bytes.NewReader(content))
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf(
+			"[%s] %s %s",
+			r.Method,
+			r.URL.String(),
+			r.URL.Query().Encode(),
+		)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
@@ -141,8 +152,11 @@ func main() {
 		serveResourceCachedETag(w, r, getBundledFile)
 	})
 
+	// Apply logging middleware
+	loggedMux := loggingMiddleware(mux)
+
 	log.Println("listening on port :8080")
-	err = http.ListenAndServe(":8080", mux)
+	err = http.ListenAndServe(":8080", loggedMux)
 	if err != nil {
 		panic(err)
 	}

@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "./tmp/run"
-  pre_cmd = ["bun run tw", "templ generate -path ./ui", "revive -config .revive.toml -formatter stylish ./..."]
+  pre_cmd = ["bun run tw", "bun run js", "templ generate -path ./ui", "revive -config .revive.toml -formatter stylish ./..."]
   cmd = "go build -o tmp/run ./main.go"
   delay = 1000
   exclude_dir = ["assets", "build", "node_modules", "tmp"]
@@ -15,7 +15,7 @@ tmp_dir = "tmp"
   follow_symlink = false
   full_bin = ""
   include_dir = []
-  include_ext = ["go", "tpl", "templ", "html"]
+  include_ext = ["go", "tpl", "templ", "html", "ts"]
   include_file = []
   kill_delay = "0s"
   log = "build-errors.log"

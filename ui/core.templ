@@ -12,6 +12,7 @@ var (
 		{Rel: "icon", Href: constants.AssetPackage},
 		{Rel: "apple-touch-icon", Href: constants.AssetPackage},
 		{Rel: "stylesheet", Href: "/icons/light/style.css"},
+		{Rel: "stylesheet", Href: "/css/index.css"},
 		{Rel: "stylesheet", Href: "/css/tailwind-generated.min.css"},
 	}
 )
@@ -22,20 +23,70 @@ templ headers() {
 	for _, lk := range headerLinks {
 		<link rel={ lk.Rel } href={ lk.Href }/>
 	}
+	<script src="/index.js"></script>
 	<title>Discontent</title>
+}
+
+type htmxProps struct {
+	HXPost, HXTarget, HXTrigger, HXVals string
+}
+
+type formProps struct {
+	ID   string
+	Htmx *htmxProps
+}
+
+// experimental
+templ form(props formProps) {
+	<form
+		class="w-full"
+		id={ props.ID }
+		accept-charset="UTF-8"
+		if props.Htmx != nil {
+			hx-post={ props.Htmx.HXPost }
+			hx-target={ props.Htmx.HXTarget }
+			hx-trigger={ props.Htmx.HXTrigger }
+			hx-vals={ props.Htmx.HXVals }
+		}
+	>
+		{ children... }
+	</form>
+}
+
+type cardProps struct {
+	ID string
+}
+
+templ card(props cardProps) {
+	<a
+		if props.ID != "" {
+			id={ props.ID }
+		}
+		href="#"
+		class={
+			"flex flex-col items-end w-full max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100",
+			"dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700",
+		}
+	>
+		{ children... }
+	</a>
 }
 
 templ Page(body templ.Component) {
 	<head>
 		@headers()
 	</head>
-	<body>
+	<body class="w-full h-full flex items-center justify-center">
 		@body
 	</body>
 }
 
 templ icon(css string) {
-	<i class={ "ph-light text-gray-500 dark:text-gray-400", css }></i>
+	<i class={ "ph-light text-gray-500 dark:text-gray-400 text-xl ", css }></i>
+}
+
+templ loadingIcon(css string) {
+	@icon("ph-circle-notch animate-spin hidden htmx-indicator " + css)
 }
 
 type labelProps struct {
@@ -54,19 +105,51 @@ type iconInputProps struct {
 }
 
 templ iconInput(props iconInputProps) {
-	@label(labelProps{For: props.ID, Text: props.Label})
-	<div class="relative mb-6">
-		<div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-			@icon(props.Icon)
+	<div class="w-full flex flex-col items-start">
+		@label(labelProps{For: props.ID, Text: props.Label})
+		<div class="w-full relative mb-6">
+			<div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+				@icon(props.Icon)
+			</div>
+			<input
+				type="text"
+				if props.ID != "" {
+					id={ props.ID }
+				}
+				class={
+					"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5",
+					"dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
+				}
+				placeholder={ props.Placeholder }
+				value={ props.Value }
+			/>
 		</div>
-		<input
-			type="text"
-			if props.ID != "" {
-				id={ props.ID }
-			}
-			class={ "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" }
-			placeholder={ props.Placeholder }
-			value={ props.Value }
-		/>
 	</div>
+}
+
+type propsPrimaryIconButton struct {
+	ID, Icon, Label, Value, Name string
+}
+
+templ primaryIconButton(props propsPrimaryIconButton) {
+	<button
+		id={ props.ID + `PrimaryIconButton` }
+		type="submit"
+		class={
+			"text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2",
+			"dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900",
+		}
+		if props.Value != "" {
+			value={ props.Value }
+		}
+		if props.Name != "" {
+			name={ props.Name }
+		}
+	>
+		<div class="flex items-center">
+			@icon(props.Icon + " text-white font-bold HideOnRequest")
+			@loadingIcon("text-white font-bold")
+			<p class={ "text-lg lg:text-xl font-bold leading-normal tracking-tighter text-white ml-2" }>{ props.Label }</p>
+		</div>
+	</button>
 }

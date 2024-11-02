@@ -44,7 +44,7 @@ func GetStructFromCollectionName(collectionName string) (any, bool) {
 }
 
 // GetCollectionNameFromStruct retrieves the collection name associated with the given struct.
-func GetCollectionNameFromStruct(entity any) (string, bool) {
-	collectionName, exists := structMap[entity]
-	return collectionName, exists
+func GetCollectionNameFromStruct(entity any) string {
+	collectionName := structMap[entity]
+	return collectionName
 }

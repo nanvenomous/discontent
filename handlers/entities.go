@@ -2,8 +2,10 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"reflect"
+	"time"
 
 	"github.com/nanvenomous/discontent/models"
 	"github.com/nanvenomous/discontent/ui"
@@ -18,16 +20,19 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Collection not found", http.StatusNotFound)
 		return
 	}
+	log.Println("got here")
 
 	if r.Method == http.MethodGet {
 		entityType := reflect.TypeOf(structure)
 
-		err := ui.Page(ui.SubmitEntityForm(entityType)).Render(r.Context(), w)
+		err := ui.Page(ui.SubmitEntityForm(structure, entityType)).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		return
 	} else if r.Method == http.MethodPost {
+		log.Println("got here post")
+		time.Sleep(time.Second * 2)
 		entityValue := reflect.New(reflect.TypeOf(structure)).Elem()
 
 		for key, values := range r.Form {
