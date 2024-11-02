@@ -1,33 +1,35 @@
 package ui
 
-import "reflect"
-import "github.com/nanvenomous/discontent/models"
-import "fmt"
+import (
+	"fmt"
+	"github.com/nanvenomous/discontent/models"
+	"reflect"
+)
 
 templ SubmitEntityForm(entity any, entityType reflect.Type) {
 	@card(cardProps{ID: "entityFormCard"}) {
-		for i := 0; i < entityType.NumField(); i++ {
-			@iconInput(iconInputProps{
-				ID:          entityType.Field(i).Name,
-				Label:       entityType.Field(i).Name,
-				Placeholder: entityType.Field(i).Type.Name(),
-				Icon:        "ph-textbox",
-			})
-			<br/>
-		}
-		// Get the collection name from the struct type
-		<div
+		<form
 			hx-post={ fmt.Sprintf("/api/entities/%s", models.GetCollectionNameFromStruct(entity)) }
 			hx-target="#entityFormCard"
-			hx-trigger="click"
 			hx-swap="outerHTML"
+			hx-disabled-elt="find button"
+			class="w-full flex flex-col items-end"
 		>
+			for i := 0; i < entityType.NumField(); i++ {
+				@iconInput(iconInputProps{
+					ID:          entityType.Field(i).Name,
+					Label:       entityType.Field(i).Name,
+					Placeholder: entityType.Field(i).Type.Name(),
+					Icon:        "ph-textbox",
+				})
+				<br/>
+			}
 			@primaryIconButton(propsPrimaryIconButton{
-				ID:    "submitButton",
+				ID:    "submitEntityButton",
 				Icon:  "ph-check-circle",
 				Label: "Submit",
 				Value: "",
 			})
-		</div>
+		</form>
 	}
 }

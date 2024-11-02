@@ -2,7 +2,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"reflect"
 	"time"
@@ -20,7 +19,6 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Collection not found", http.StatusNotFound)
 		return
 	}
-	log.Println("got here")
 
 	if r.Method == http.MethodGet {
 		entityType := reflect.TypeOf(structure)
@@ -31,8 +29,7 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else if r.Method == http.MethodPost {
-		log.Println("got here post")
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 4)
 		entityValue := reflect.New(reflect.TypeOf(structure)).Elem()
 
 		for key, values := range r.Form {
