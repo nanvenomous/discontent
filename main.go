@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/amalfra/etag/v3"
+	"github.com/nanvenomous/discontent/data"
 	"github.com/nanvenomous/discontent/handlers"
 )
 
@@ -68,9 +69,24 @@ func serveResourceCachedETag(w http.ResponseWriter, r *http.Request,
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var color string
+		switch r.Method {
+		case http.MethodGet:
+			color = "\033[32m" // Green for GET
+		case http.MethodPost:
+			color = "\033[34m" // Blue for POST
+		case http.MethodPut:
+			color = "\033[33m" // Yellow for PUT
+		case http.MethodDelete:
+			color = "\033[31m" // Red for DELETE
+		default:
+			color = "\033[0m" // Default color for other methods
+		}
 		log.Printf(
-			"[%s] %s %s",
+			"%s[%s]%s %s %s",
+			color,
 			r.Method,
+			"\033[0m", // Reset color
 			r.URL.String(),
 			r.URL.Query().Encode(),
 		)
@@ -78,15 +94,21 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func main() {
+func run() error {
 	var (
 		err error
 		mux = http.NewServeMux()
 	)
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 
 	embeddedResources, err = fs.Sub(buildFS, "build")
 	if err != nil {
-		panic(err)
+		return err
+	}
+
+	err = data.Setup()
+	if err != nil {
+		return err
 	}
 
 	mux.HandleFunc("/api/entities/", handlers.HandleEntity)
@@ -113,6 +135,11 @@ func main() {
 
 	log.Println("listening on port :8080")
 	err = http.ListenAndServe(":8080", loggedMux)
+	return err
+}
+
+func main() {
+	err := run()
 	if err != nil {
 		panic(err)
 	}

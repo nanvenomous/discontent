@@ -33,6 +33,7 @@ templ SubmitEntityForm(entity any, entityType reflect.Type) {
 					Placeholder: entityType.Field(i).Type.Name(),
 					Icon:        iconTypeMap[entityType.Field(i).Type.Name()],
 					ViewOnly:    disabledTypeMap[entityType.Field(i).Type.Name()],
+					Name:        entityType.Field(i).Name,
 				})
 				<br/>
 			}

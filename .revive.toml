@@ -13,3 +13,5 @@ enableAllRules = true
   Disabled = true
 [rule.cognitive-complexity]
   arguments =[30]
+[rule.cyclomatic]
+  arguments =[15]

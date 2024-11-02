@@ -100,8 +100,8 @@ templ label(props labelProps) {
 }
 
 type iconInputProps struct {
-	ID, Label, Placeholder, Icon, Value string
-	Disabled, ViewOnly                  bool
+	ID, Label, Placeholder, Icon, Value, Name string // Added Name prop
+	Disabled, ViewOnly                        bool
 }
 
 templ iconInput(props iconInputProps) {
@@ -115,6 +115,9 @@ templ iconInput(props iconInputProps) {
 				type="text"
 				if props.ID != "" {
 					id={ props.ID }
+				}
+				if props.Name != "" { 
+					name={ props.Name }
 				}
 				class={
 					"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5",

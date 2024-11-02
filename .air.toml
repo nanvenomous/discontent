@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "./tmp/run"
-  pre_cmd = ["bun run tw", "bun run js", "templ generate -path ./ui", "revive -config .revive.toml -formatter stylish ./..."]
+  pre_cmd = ["bun run tw", "bun run js", "templ generate -path ./ui", "revive -config .revive.toml -formatter stylish $(rg -i --files --glob '*_test.go' | xargs -I {} echo -exclude '{}') ./..."]
   cmd = "go build -o tmp/run ./main.go"
   delay = 1000
   exclude_dir = ["assets", "build", "node_modules", "tmp"]
