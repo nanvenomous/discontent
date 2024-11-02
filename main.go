@@ -3,7 +3,6 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"embed"
 	"fmt"
 	"io"
@@ -12,13 +11,10 @@ import (
 	"net/http"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/amalfra/etag/v3"
 	"github.com/nanvenomous/discontent/handlers"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 //go:embed build/*
@@ -26,54 +22,7 @@ var buildFS embed.FS
 
 var (
 	embeddedResources fs.FS
-	client            *mongo.Client
-	collection        *mongo.Collection
-	mu                sync.Mutex
 )
-
-// type Entity struct {
-// 	ID   string                 `json:"id" bson:"_id,omitempty"`
-// 	Data map[string]interface{} `json:"data" bson:"data"`
-// }
-
-func init() {
-	var err error
-
-	embeddedResources, err = fs.Sub(buildFS, "build")
-	if err != nil {
-		panic(err)
-	}
-
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-	client, err = mongo.Connect(context.TODO(), clientOptions)
-	if err != nil {
-		panic(err)
-	}
-	collection = client.Database("cms").Collection("entities")
-}
-
-// func registerEntity(entity Entity) error {
-// 	mu.Lock()
-// 	defer mu.Unlock()
-// 	_, err := collection.InsertOne(context.TODO(), entity)
-// 	return err
-// }
-
-// func getEntities(w http.ResponseWriter, r *http.Request) {
-// 	mu.Lock()
-// 	defer mu.Unlock()
-// 	cursor, err := collection.Find(context.TODO(), bson.D{})
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	var entities []Entity
-// 	if err = cursor.All(context.TODO(), &entities); err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// 	json.NewEncoder(w).Encode(entities)
-// }
 
 func getBundledFile(r *http.Request) ([]byte, error) {
 	if len(r.URL.Path) > 500 {
@@ -130,8 +79,15 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	var err error
-	mux := http.NewServeMux()
+	var (
+		err error
+		mux = http.NewServeMux()
+	)
+
+	embeddedResources, err = fs.Sub(buildFS, "build")
+	if err != nil {
+		panic(err)
+	}
 
 	mux.HandleFunc("/api/entities/", handlers.HandleEntity)
 

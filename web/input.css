@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: 'DejaVuSansMono';
+  src: url('../build/fonts/DejaVuSansMono.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@layer utilities {
+  .font-dejavu {
+    font-family: 'DejaVuSansMono', monospace;
+  }
+}
