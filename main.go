@@ -1,3 +1,4 @@
+// Package main is the entry point for the Discontent CMS.
 package main
 
 import (
@@ -7,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"net/http"
 	"slices"
 	"strings"
@@ -23,21 +25,21 @@ import (
 var buildFS embed.FS
 
 var (
-	EmbeddedResources fs.FS
+	embeddedResources fs.FS
 	client            *mongo.Client
 	collection        *mongo.Collection
 	mu                sync.Mutex
 )
 
-type Entity struct {
-	ID   string                 `json:"id" bson:"_id,omitempty"`
-	Data map[string]interface{} `json:"data" bson:"data"`
-}
+// type Entity struct {
+// 	ID   string                 `json:"id" bson:"_id,omitempty"`
+// 	Data map[string]interface{} `json:"data" bson:"data"`
+// }
 
 func init() {
 	var err error
 
-	EmbeddedResources, err = fs.Sub(buildFS, "build")
+	embeddedResources, err = fs.Sub(buildFS, "build")
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +77,10 @@ func init() {
 
 func getBundledFile(r *http.Request) ([]byte, error) {
 	if len(r.URL.Path) > 500 {
-		return []byte{}, fmt.Errorf("The filepath you entered: %s was suspiciously long", r.URL.Path)
+		return []byte{}, fmt.Errorf(
+			"The filepath you entered: %s was suspiciously long",
+			r.URL.Path,
+		)
 	}
 
 	var pth = r.URL.Path
@@ -83,7 +88,7 @@ func getBundledFile(r *http.Request) ([]byte, error) {
 		pth = strings.TrimPrefix(pth, "/")
 	}
 
-	fl, err := EmbeddedResources.Open(pth)
+	fl, err := embeddedResources.Open(pth)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -94,7 +99,7 @@ func getBundledFile(r *http.Request) ([]byte, error) {
 
 func serveResourceCachedETag(w http.ResponseWriter, r *http.Request,
 	fileCheck func(r *http.Request) ([]byte, error)) {
-	fmt.Println(r.URL.Path)
+	log.Println(r.URL.Path)
 
 	w.Header().Set("Cache-Control", "max-age=0")
 	content, err := fileCheck(r)
@@ -115,23 +120,29 @@ func serveResourceCachedETag(w http.ResponseWriter, r *http.Request,
 
 func main() {
 	var err error
-	mux := http.NewServeMux() // Create a new ServeMux
+	mux := http.NewServeMux()
 
 	mux.HandleFunc("/api/entities/", handlers.HandleEntity)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if slices.Contains([]string{"", "/"}, r.URL.Path) {
-			// Handle root path if needed
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("status ok"))
+			_, err = w.Write([]byte("status ok"))
+			if err != nil {
+				http.Error(
+					w,
+					"Could not write the status message: "+err.Error(),
+					http.StatusInternalServerError,
+				)
+				return
+			}
 			return
-		} else {
-			serveResourceCachedETag(w, r, getBundledFile)
 		}
+		serveResourceCachedETag(w, r, getBundledFile)
 	})
 
-	fmt.Println("listening on port :8080")
-	err = http.ListenAndServe(":8080", mux) // Use the mux in ListenAndServe
+	log.Println("listening on port :8080")
+	err = http.ListenAndServe(":8080", mux)
 	if err != nil {
 		panic(err)
 	}

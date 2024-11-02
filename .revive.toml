@@ -1,0 +1,15 @@
+ignoreGeneratedHeader = false
+severity = "error"
+confidence = 0.8
+errorCode = 1
+warningCode = 0
+enableAllRules = true
+
+[rule.line-length-limit]
+  Arguments = [100]
+[rule.function-length]
+  Arguments = [100, 0]
+[rule.add-constant]
+  Disabled = true
+[rule.cognitive-complexity]
+  arguments =[30]

@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "./tmp/run"
-  pre_cmd = ["bun run tw", "templ generate -path ./ui"]
+  pre_cmd = ["bun run tw", "templ generate -path ./ui", "revive -config .revive.toml -formatter stylish ./..."]
   cmd = "go build -o tmp/run ./main.go"
   delay = 1000
   exclude_dir = ["assets", "build", "node_modules", "tmp"]
@@ -25,7 +25,7 @@ tmp_dir = "tmp"
   rerun = false
   rerun_delay = 500
   send_interrupt = false
-  stop_on_error = false
+  stop_on_error = true
 
 [color]
   app = ""

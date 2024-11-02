@@ -1,22 +1,25 @@
+// Package handlers provides HTTP handlers for managing entities.
 package handlers
 
 import (
 	"net/http"
 	"reflect"
 
-	"github.com/nanvenomous/discontent/examples"
+	"github.com/nanvenomous/discontent/models"
 	"github.com/nanvenomous/discontent/ui"
 )
 
+// HandleEntity handles requests for entities.
 func HandleEntity(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		collectionName := r.URL.Path[len("/api/entities/"):]
+	collectionName := r.URL.Path[len("/api/entities/"):]
 
-		structure, exists := examples.GetStructFromCollectionName(collectionName)
-		if !exists {
-			http.Error(w, "Collection not found", http.StatusNotFound)
-			return
-		}
+	structure, exists := models.GetStructFromCollectionName(collectionName)
+	if !exists {
+		http.Error(w, "Collection not found", http.StatusNotFound)
+		return
+	}
+
+	if r.Method == http.MethodGet {
 		entityType := reflect.TypeOf(structure)
 
 		err := ui.Page(ui.SubmitEntityForm(entityType)).Render(r.Context(), w)
@@ -25,14 +28,6 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else if r.Method == http.MethodPost {
-		collectionName := r.URL.Path[len("/api/entities/"):]
-
-		structure, exists := examples.GetStructFromCollectionName(collectionName)
-		if !exists {
-			http.Error(w, "Collection not found", http.StatusNotFound)
-			return
-		}
-
 		entityValue := reflect.New(reflect.TypeOf(structure)).Elem()
 
 		for key, values := range r.Form {
