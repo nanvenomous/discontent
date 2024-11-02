@@ -6,6 +6,17 @@ import (
 	"reflect"
 )
 
+var (
+	iconTypeMap = map[string]string{
+		"string":   "ph-textbox",
+		"ObjectID": "ph-key",
+	}
+
+	disabledTypeMap = map[string]bool{
+		"ObjectID": true,
+	}
+)
+
 templ SubmitEntityForm(entity any, entityType reflect.Type) {
 	@card(cardProps{ID: "entityFormCard"}) {
 		<form
@@ -20,7 +31,8 @@ templ SubmitEntityForm(entity any, entityType reflect.Type) {
 					ID:          entityType.Field(i).Name,
 					Label:       entityType.Field(i).Name,
 					Placeholder: entityType.Field(i).Type.Name(),
-					Icon:        "ph-textbox",
+					Icon:        iconTypeMap[entityType.Field(i).Type.Name()],
+					ViewOnly:    disabledTypeMap[entityType.Field(i).Type.Name()],
 				})
 				<br/>
 			}

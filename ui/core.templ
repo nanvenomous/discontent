@@ -58,18 +58,17 @@ type cardProps struct {
 }
 
 templ card(props cardProps) {
-	<a
+	<div
 		if props.ID != "" {
 			id={ props.ID }
 		}
-		href="#"
 		class={
-			"flex flex-col items-end w-full max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100",
+			"flex flex-col items-end w-full max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-purple-50",
 			"dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700",
 		}
 	>
 		{ children... }
-	</a>
+	</div>
 }
 
 templ Page(body templ.Component) {
@@ -102,6 +101,7 @@ templ label(props labelProps) {
 
 type iconInputProps struct {
 	ID, Label, Placeholder, Icon, Value string
+	Disabled, ViewOnly                  bool
 }
 
 templ iconInput(props iconInputProps) {
@@ -120,11 +120,18 @@ templ iconInput(props iconInputProps) {
 					"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5",
 					"dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500",
 					"disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-600",
-					"disabled:border-gray-200 dark:disabled:border-gray-600",
+					"disabled:border-gray-200 dark:disabled:border-gray-600", 
 					"disabled:text-gray-500 dark:disabled:text-gray-400",
+					templ.KV("hover:bg-purple-50 dark:hover:bg-gray-600 cursor-default", props.ViewOnly),
 				}
 				placeholder={ props.Placeholder }
 				value={ props.Value }
+				if props.Disabled {
+					disabled
+				}
+				if props.ViewOnly {
+					readonly
+				}
 			/>
 		</div>
 	</div>

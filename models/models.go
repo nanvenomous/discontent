@@ -1,26 +1,28 @@
 // Package models defines the data structures for the Discontent CMS.
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 // Article represents a blog article.
 type Article struct {
-	ID      string `json:"id" bson:"_id,omitempty"`
-	Title   string `json:"title" bson:"title"`
-	Content string `json:"content" bson:"content"`
-	Author  string `json:"author" bson:"author"`
+	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Title   string             `json:"title" bson:"title"`
+	Content string             `json:"content" bson:"content"`
+	Author  string             `json:"author" bson:"author"`
 }
 
 // Category represents a category.
 type Category struct {
-	ID   string `json:"id" bson:"_id,omitempty"`
-	Name string `json:"name" bson:"name"`
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name" bson:"name"`
 }
 
 // Comment represents a comment on an article.
 type Comment struct {
-	ID        string `json:"id" bson:"_id,omitempty"`
-	ArticleID string `json:"article_id" bson:"article_id"`
-	Content   string `json:"content" bson:"content"`
-	Author    string `json:"author" bson:"author"`
+	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	ArticleID string             `json:"article_id" bson:"article_id"`
+	Content   string             `json:"content" bson:"content"`
+	Author    string             `json:"author" bson:"author"`
 }
 
 // collectionMap maps collection names to their corresponding struct types.
