@@ -2,7 +2,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"reflect"
 	"time"
@@ -70,7 +69,6 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Println(entityValue)
 		stctFlds, err = reflection.GetStructFields(entityValue.Interface())
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
