@@ -16,7 +16,8 @@ import (
 // HandleEntity handles requests for entities.
 func HandleEntity(w http.ResponseWriter, r *http.Request) {
 	var (
-		err error
+		err      error
+		stctFlds []reflection.StructField
 	)
 
 	collectionName := r.URL.Path[len("/api/entities/"):]
@@ -26,10 +27,15 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Collection not found", http.StatusNotFound)
 		return
 	}
-	entityType := reflect.TypeOf(structure)
 
 	if r.Method == http.MethodGet {
-		err := ui.Page(ui.SubmitEntityForm(structure, entityType)).Render(r.Context(), w)
+		stctFlds, err = reflection.GetStructFields(structure)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err := ui.Page(ui.SubmitEntityForm(structure, stctFlds)).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -63,9 +69,15 @@ func HandleEntity(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		log.Println(entityValue)
 
-		err = ui.Page(ui.SubmitEntityForm(entityValue, entityType)).Render(r.Context(), w)
+		log.Println(entityValue)
+		stctFlds, err = reflection.GetStructFields(entityValue.Interface())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = ui.Page(ui.SubmitEntityForm(entityValue, stctFlds)).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

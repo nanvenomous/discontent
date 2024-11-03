@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/nanvenomous/discontent/models"
 	"github.com/nanvenomous/discontent/reflection"
@@ -19,7 +18,7 @@ var (
 	}
 )
 
-templ SubmitEntityForm(entity any, entityType reflect.Type) {
+templ SubmitEntityForm(entity any, flds []reflection.StructField) {
 	@card(cardProps{ID: "entityFormCard"}) {
 		<form
 			hx-post={ fmt.Sprintf("/api/entities/%s", models.GetCollectionNameFromStruct(entity)) }
@@ -28,15 +27,15 @@ templ SubmitEntityForm(entity any, entityType reflect.Type) {
 			hx-disabled-elt="find button"
 			class="w-full flex flex-col items-end"
 		>
-			for i := 0; i < entityType.NumField(); i++ {
+			for _, fld := range flds {
 				@iconInput(iconInputProps{
-					ID:          entityType.Field(i).Name,
-					Label:       entityType.Field(i).Name,
-					Placeholder: entityType.Field(i).Type.Name(),
-					Icon:        iconTypeMap[entityType.Field(i).Type.Name()],
-					ViewOnly:    disabledTypeMap[entityType.Field(i).Type.Name()],
-					Name:        entityType.Field(i).Name,
-					Value:       reflection.GetStringFromValue(entityType.Field(i), reflect.ValueOf(entity).Field(i)),
+					ID:          fld.Name,
+					Label:       fld.Name,
+					Placeholder: fld.Type.Name(),
+					Icon:        iconTypeMap[fld.Type.Name()],
+					ViewOnly:    disabledTypeMap[fld.Type.Name()],
+					Name:        fld.Name,
+					Value:       fmt.Sprintf("%v", fld.Value),
 				})
 				<br/>
 			}

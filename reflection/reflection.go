@@ -3,11 +3,63 @@ package reflection
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"reflect"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+// StructField is a struct that contains the name, type, and value of a reflected struct field
+type StructField struct {
+	Name  string
+	Type  reflect.Type
+	Value any
+}
+
+// GetStructFields iterates over the struct & populates the []StructField{}
+func GetStructFields(entity any) ([]StructField, error) {
+	var (
+		err      error
+		stctFlds = []StructField{}
+	)
+	err = ForStructField(
+		entity,
+		func(name string, typ reflect.Type, val any) error {
+			if typ.Name() == "ObjectID" && val == primitive.NilObjectID {
+				val = ""
+			}
+
+			stctFlds = append(stctFlds, StructField{
+				Name:  name,
+				Type:  typ,
+				Value: val,
+			})
+			return nil
+		},
+	)
+	return stctFlds, err
+}
+
+// ForStructField iterates over the fields of a struct and calls the forFunc for each field
+func ForStructField(entity any, forFunc func(string, reflect.Type, any) error) error {
+	entityValue := reflect.ValueOf(entity)
+	entityType := entityValue.Type()
+
+	for i := 0; i < entityValue.NumField(); i++ {
+		field := entityValue.Field(i)
+		fieldType := entityType.Field(i)
+
+		log.Println(fieldType.Name, fieldType.Type, field.CanInterface(), field.IsValid())
+		if field.CanInterface() {
+			err := forFunc(fieldType.Name, fieldType.Type, field.Interface())
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
 
 // GetStringFromValue gets the string value from a reflect.StructField
 func GetStringFromValue(fld reflect.StructField, val reflect.Value) string {

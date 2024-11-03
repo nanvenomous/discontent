@@ -11,6 +11,33 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func TestForStructField(t *testing.T) {
+	objID := primitive.NewObjectID()
+	article := models.Article{
+		ID:      objID,
+		Title:   "Test Title",
+		Content: "Test Content",
+		Author:  "Test Author",
+	}
+
+	expectedFields := map[string]struct {
+		typ reflect.Type
+		val any
+	}{
+		"ID":      {typ: reflect.TypeOf(objID), val: objID},
+		"Title":   {typ: reflect.TypeOf(""), val: "Test Title"},
+		"Content": {typ: reflect.TypeOf(""), val: "Test Content"},
+		"Author":  {typ: reflect.TypeOf(""), val: "Test Author"},
+	}
+
+	err := ForStructField(article, func(name string, typ reflect.Type, val any) error {
+		assert.Equal(t, expectedFields[name].typ, typ)
+		assert.Equal(t, expectedFields[name].val, val)
+		return nil
+	})
+	assert.Nil(t, err)
+}
+
 func TestGetStringFromValue(t *testing.T) {
 	objID := primitive.NewObjectID()
 	article := models.Article{
